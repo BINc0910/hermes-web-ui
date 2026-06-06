@@ -10,42 +10,45 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
-        with: { node-version: '22' }
+        with:
+          node-version: '22'
 
-      - name: Create Electron Launcher
+      - name: Build Electron App
+        shell: pwsh
         run: |
           mkdir launcher
           cd launcher
           npm init -y
           npm install electron electron-builder
 
-          @"
-          const { app, BrowserWindow } = require('electron');
-          const path = require('path');
-
+          $mainJs = @'
+          const { app, BrowserWindow } = require("electron");
           app.whenReady().then(() => {
             const win = new BrowserWindow({
               width: 1400, height: 900,
-              title: 'LLink Agent 基础版 v1.1.0',
+              title: "LLink Agent 基础版 v1.1.0",
               webPreferences: { nodeIntegration: false }
             });
             win.setMenuBarVisibility(false);
-            win.loadURL('http://127.0.0.1:8648/#/hermes/chat');
+            win.loadURL("http://127.0.0.1:8648/#/hermes/chat");
           });
-          app.on('window-all-closed', () => app.quit());
-          "@ | Out-File -Encoding utf8 main.js
+          app.on("window-all-closed", () => app.quit());
+          '@
+          $mainJs | Out-File -Encoding utf8 main.js
+
+          $buildConfig = @{
+            appId = "com.llink.agent.basic"
+            productName = "LLink Agent 基础版"
+            win = @{ target = "nsis"; icon = "..\\release-dist\\client\\favicon.ico" }
+            nsis = @{ oneClick = $false; allowToChangeInstallationDirectory = $true }
+            files = @("main.js", "node_modules/**")
+            extraResources = @(@{ from = "..\\release-dist"; to = "dist" })
+          }
 
           $pkg = Get-Content package.json | ConvertFrom-Json
-          $pkg.main = 'main.js'
-          $pkg | Add-Member -Force -Name build -Value @{
-            appId = 'com.llink.agent.basic'
-            productName = 'LLink Agent 基础版'
-            win = @{ target = 'nsis'; icon = '..\release-dist\client\favicon.ico' }
-            nsis = @{ oneClick = $false; allowToChangeInstallationDirectory = $true }
-            files = @('main.js', 'node_modules/**')
-            extraResources = @(@{ from = '..\release-dist'; to = 'dist' })
-          }
-          $pkg | ConvertTo-Json -Depth 4 | Out-File -Encoding utf8 package.json
+          $pkg.main = "main.js"
+          $pkg | Add-Member -Force -Name build -Value $buildConfig
+          $pkg | ConvertTo-Json -Depth 5 | Out-File -Encoding utf8 package.json
 
           npx electron-builder --win --publish=never
 
