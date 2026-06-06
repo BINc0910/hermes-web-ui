@@ -1,37 +1,55 @@
-name: Build Desktop Installer
+name: Build Desktop EXE
 
 on:
-  push:
-    branches: [v1.1.0-basic]
   workflow_dispatch:
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
-    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: packages/client/package-lock.json
+        with: { node-version: '22' }
 
-      - name: Install & Build
-        working-directory: packages/client
+      - name: Create Electron Launcher
         run: |
-          npm ci 2>$null || npm install
-          npx vite build
+          mkdir launcher
+          cd launcher
+          npm init -y
+          npm install electron electron-builder
 
-      - name: Package Desktop
-        working-directory: packages/desktop
-        run: |
-          npm install
-          npx tsc -p tsconfig.json
-          npx electron-builder --win -c.extraMetadata.main=dist/main/index.js --publish=never
+          @"
+          const { app, BrowserWindow } = require('electron');
+          const path = require('path');
+
+          app.whenReady().then(() => {
+            const win = new BrowserWindow({
+              width: 1400, height: 900,
+              title: 'LLink Agent 基础版 v1.1.0',
+              webPreferences: { nodeIntegration: false }
+            });
+            win.setMenuBarVisibility(false);
+            win.loadURL('http://127.0.0.1:8648/#/hermes/chat');
+          });
+          app.on('window-all-closed', () => app.quit());
+          "@ | Out-File -Encoding utf8 main.js
+
+          $pkg = Get-Content package.json | ConvertFrom-Json
+          $pkg.main = 'main.js'
+          $pkg | Add-Member -Force -Name build -Value @{
+            appId = 'com.llink.agent.basic'
+            productName = 'LLink Agent 基础版'
+            win = @{ target = 'nsis'; icon = '..\release-dist\client\favicon.ico' }
+            nsis = @{ oneClick = $false; allowToChangeInstallationDirectory = $true }
+            files = @('main.js', 'node_modules/**')
+            extraResources = @(@{ from = '..\release-dist'; to = 'dist' })
+          }
+          $pkg | ConvertTo-Json -Depth 4 | Out-File -Encoding utf8 package.json
+
+          npx electron-builder --win --publish=never
 
       - uses: actions/upload-artifact@v4
         with:
           name: LLink-Agent-基础版-v1.1.0
-          path: packages/desktop/release/*.exe
+          path: launcher/dist/*.exe
