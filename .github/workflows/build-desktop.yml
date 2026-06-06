@@ -1,8 +1,6 @@
 name: Build Desktop EXE
 
 on:
-  push:
-    branches: [v1.1.0-basic]
   workflow_dispatch:
 
 jobs:
