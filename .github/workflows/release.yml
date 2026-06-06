@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "LLink Agent 基础版 ${{ github.ref_name }}"
+          body: |
+            ## LLink Agent 基础版
+            
+            基于 Hermes Web UI 定制的 AI 智能助手。
+            
+            ### 安装方法
+            1. 确保已安装 Node.js 和 `hermes-web-ui`
+            2. 解压 → 双击 `setup.bat`
+            3. 桌面出现快捷方式，双击启动
+            
+            ### 定制内容
+            - ✅ 自定义 LOGO 和名称
+            - ✅ 精简侧边栏菜单
+            - ✅ 赛博风格思考动画
+            - ✅ 仅保留深色模式切换
+          draft: false
+          prerelease: false
