@@ -1,0 +1,35 @@
+name: Build Desktop Installer
+
+on:
+  push:
+    branches: [v1.1.0-basic]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build Client
+        run: |
+          cd packages/client
+          npm install
+          npx vite build
+
+      - name: Build Desktop
+        run: |
+          cd packages/desktop
+          npm install
+          npx tsc -p tsconfig.json
+          npx electron-builder --win --publish=never
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: LLink-Agent-基础版-Windows
+          path: packages/desktop/release/*.exe

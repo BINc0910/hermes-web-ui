@@ -1,6 +1,6 @@
-appId: com.hermeswebui.studio
-productName: Hermes Studio
-copyright: Copyright © 2026
+appId: com.llink.agent.basic
+productName: LLink Agent 基础版
+copyright: Copyright © 2026 LLink
 
 directories:
   output: release

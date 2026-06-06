@@ -1,11 +1,11 @@
 {
-  "name": "hermes-studio",
-  "version": "0.6.10",
-  "description": "Hermes Studio desktop distribution with bundled Python runtime and hermes-agent",
-  "homepage": "https://hermes-studio.ai",
+  "name": "llink-agent-basic",
+  "version": "1.1.0",
+  "description": "LLink Agent 基础版 - AI 智能助手桌面客户端",
+  "homepage": "https://github.com/BINc0910/hermes-web-ui",
   "author": {
-    "name": "Hermes Studio Contributors",
-    "email": "noreply@hermes-studio.local"
+    "name": "LLink Agent",
+    "email": "noreply@llink.local"
   },
   "license": "BSL-1.1",
   "private": true,
