@@ -15,21 +15,28 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Build Client
-        run: |
-          cd packages/client
-          npm install
-          npx vite build
+      - name: Install Client Dependencies
+        working-directory: packages/client
+        run: npm install --legacy-peer-deps
 
-      - name: Build Desktop
-        run: |
-          cd packages/desktop
-          npm install
-          npx tsc -p tsconfig.json
-          npx electron-builder --win --publish=never
+      - name: Build Client
+        working-directory: packages/client
+        run: npx vite build
+
+      - name: Install Desktop Dependencies
+        working-directory: packages/desktop
+        run: npm install --legacy-peer-deps
+
+      - name: Build Desktop TypeScript
+        working-directory: packages/desktop
+        run: npx tsc -p tsconfig.json
+
+      - name: Package Windows Installer
+        working-directory: packages/desktop
+        run: npx electron-builder --win --publish=never
 
       - name: Upload Installer
         uses: actions/upload-artifact@v4
         with:
-          name: LLink-Agent-基础版-Windows
+          name: LLink-Agent-基础版-v1.1.0
           path: packages/desktop/release/*.exe
