@@ -8,60 +8,30 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: packages/client/package-lock.json
 
-      - name: Install & Build Client
+      - name: Install & Build
+        working-directory: packages/client
         run: |
-          cd packages/client
+          npm ci 2>$null || npm install
+          npx vite build
+
+      - name: Package Desktop
+        working-directory: packages/desktop
+        run: |
           npm install
-          npx vite build --mode production
-        continue-on-error: true
+          npx tsc -p tsconfig.json
+          npx electron-builder --win -c.extraMetadata.main=dist/main/index.js --publish=never
 
-      - name: Check dist exists
-        run: |
-          if (Test-Path packages/client/dist) {
-            echo "✅ Client built successfully"
-          } else {
-            echo "⚠️ Source build failed, using pre-packaged dist"
-            mkdir -p packages/client/dist/client -Force
-            Copy-Item -Recurse -Force "${{ github.workspace }}/../dist/*" packages/client/dist/client/ -ErrorAction SilentlyContinue
-          }
-        shell: pwsh
-
-      - name: Build Electron Desktop
-        run: |
-          cd packages/desktop
-          npm install
-          npx tsc -p tsconfig.json 2>$null
-          npx electron-builder --win --publish=never
-        continue-on-error: true
-
-      - name: Upload EXE (if exists)
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: LLink-Agent-基础版-v1.1.0
           path: packages/desktop/release/*.exe
-        continue-on-error: true
-
-      - name: Create Portable Package
-        if: always()
-        shell: pwsh
-        run: |
-          mkdir portable
-          if (Test-Path "packages/client/dist") {
-            Copy-Item -Recurse "packages/client/dist/*" portable/dist/ -Force
-          } else {
-            Write-Host "No dist available for portable package"
-          }
-
-      - name: Upload Portable
-        uses: actions/upload-artifact@v4
-        with:
-          name: LLink-Agent-基础版-v1.1.0-Portable
-          path: portable/
-        continue-on-error: true
