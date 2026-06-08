@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+  <link rel="icon" type="image/png" href="/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LLink Agent</title>
 
@@ -33,34 +33,47 @@
       }
     })();
   </script>
-  <script type="module" crossorigin src="/assets/js/index-C0M64tbC.js"></script>
+  <script type="module" crossorigin src="/assets/js/index-DUEP1pix.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/js/rolldown-runtime-M0oDzQ_3.js">
   <link rel="modulepreload" crossorigin href="/assets/js/mermaid-CWQI515T.js">
-  <link rel="modulepreload" crossorigin href="/assets/js/ui-vendor-CepnLjNg.js">
+  <link rel="modulepreload" crossorigin href="/assets/js/ui-vendor-DNWaqYj5.js">
   <link rel="modulepreload" crossorigin href="/assets/js/vendor-B1Lfatlz.js">
-  <link rel="modulepreload" crossorigin href="/assets/js/vue-vendor-BQwgTLLQ.js">
-  <link rel="modulepreload" crossorigin href="/assets/js/_plugin-vue_export-helper-BTE6dhjV.js">
-  <link rel="modulepreload" crossorigin href="/assets/js/system-BU3MlEqr.js">
+  <link rel="modulepreload" crossorigin href="/assets/js/vue-vendor-VX6KvV1_.js">
+  <link rel="modulepreload" crossorigin href="/assets/js/_plugin-vue_export-helper-Fcw_rIxj.js">
+  <link rel="modulepreload" crossorigin href="/assets/js/system-CYalj9f4.js">
   <link rel="stylesheet" crossorigin href="/assets/css/vendor-DX3NCGtF.css">
   <link rel="stylesheet" crossorigin href="/assets/css/vue-vendor-WE_HbAyV.css">
-  <link rel="stylesheet" crossorigin href="/assets/css/index-lowPp-cO.css">
-
-<style id="llink-basic-hide">
-/* 基础版：隐藏状态指示/版本链接/更新按钮/登出/语言切换 */
-.status-indicator,
-.version-links,
-.version-text,
-.update-btn,
-.logout-item,
-.status-text,
-.language-switch-container,
-.github-link,
-.website-link,
-.nav-item:has(.beta-tag)
-{ display: none !important; }
-.status-row { justify-content: flex-end !important; }
-</style>
-
+  <link rel="stylesheet" crossorigin href="/assets/css/index-DtEzdW_p.css">
+  <!-- 隐藏：工具栏 → 编程工具 -->
+  <script>
+    setTimeout(function(){
+      var items = document.querySelectorAll('.nav-item');
+      for (var i = 0; i < items.length; i++) {
+        var t = (items[i].textContent || '').trim();
+        if (t === '编程工具' || t === 'codingAgents') {
+          items[i].remove();
+          continue;
+        }
+        // 隐藏：对话栏 → 中转站
+        if (t === '中转站') {
+          items[i].remove();
+          continue;
+        }
+        // 隐藏：对话栏 → 群聊
+        if (t.indexOf('群聊') >= 0 || t.indexOf('groupChat') >= 0) {
+          items[i].remove();
+          continue;
+        }
+      }
+      // 隐藏底部栏：版本号、GitHub、Website
+      var els = document.querySelectorAll('.version-text, .github-link, .website-link');
+      for (var j = 0; j < els.length; j++) {
+        els[j].style.display = 'none';
+      }
+      // 强制修改浏览器标签页标题
+      document.title = 'LLink Agent';
+    }, 800);
+  </script>
 </head>
 
 <body>
