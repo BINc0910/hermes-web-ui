@@ -72,7 +72,28 @@
       }
       // 强制修改浏览器标签页标题
       document.title = 'LLink Agent';
+
+      // 自动登录：跳过登录页面
+      autoLogin();
     }, 800);
+
+    function autoLogin() {
+      // 如果已有 token，跳过自动登录，避免无限刷新循环
+      if (localStorage.getItem('hermes_token')) return;
+      // 调用登录API（服务端已绕过密码验证）
+      setTimeout(function() {
+        fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({username: 'admin', password: 'admin'})
+        }).then(function(r) {
+          if (r.ok) return r.json().then(function(d) {
+            if (d.token) localStorage.setItem('hermes_token', d.token);
+            location.reload();
+          });
+        }).catch(function(){});
+      }, 2000);
+    }
   </script>
 </head>
 
